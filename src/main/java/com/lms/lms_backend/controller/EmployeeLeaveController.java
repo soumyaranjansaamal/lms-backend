@@ -14,7 +14,6 @@ public class EmployeeLeaveController {
 
     private final EmployeeLeaveService leaveService;
 
-    // Constructor injection
     public EmployeeLeaveController(EmployeeLeaveService leaveService) {
         this.leaveService = leaveService;
     }
@@ -22,8 +21,7 @@ public class EmployeeLeaveController {
     @PostMapping
     public ResponseEntity<EmployeeLeave> createLeave(@RequestBody EmployeeLeave leave) {
         EmployeeLeave saved = leaveService.saveLeave(leave);
-        return ResponseEntity
-                .created(URI.create("/api/employees/leaves/" + saved.getId()))
+        return ResponseEntity.created(URI.create("/api/employees/leaves/" + saved.getId()))
                 .body(saved);
     }
 
@@ -34,7 +32,9 @@ public class EmployeeLeaveController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeLeave> getLeaveById(@PathVariable Long id) {
-        EmployeeLeave leave = leaveService.getLeaveById(id);
+        EmployeeLeave leave = leaveService.getLeaveById(id)
+                .orElse(null);
+
         if (leave == null) {
             return ResponseEntity.notFound().build();
         }
