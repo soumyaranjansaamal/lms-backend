@@ -12,32 +12,29 @@ import java.util.List;
 @RequestMapping("/api/employees/leaves")
 public class EmployeeLeaveController {
 
-    private final EmployeeLeaveService leaveService;
+    private final EmployeeLeaveService service;
 
-    public EmployeeLeaveController(EmployeeLeaveService leaveService) {
-        this.leaveService = leaveService;
+    public EmployeeLeaveController(EmployeeLeaveService service) {
+        this.service = service;
     }
 
     @PostMapping
     public ResponseEntity<EmployeeLeave> createLeave(@RequestBody EmployeeLeave leave) {
-        EmployeeLeave saved = leaveService.saveLeave(leave);
-        return ResponseEntity.created(URI.create("/api/employees/leaves/" + saved.getId()))
+        EmployeeLeave saved = service.saveLeave(leave);
+        return ResponseEntity.created(
+                URI.create("/api/employees/leaves/" + saved.getId()))
                 .body(saved);
     }
 
     @GetMapping("/by-employee/{employeeId}")
     public ResponseEntity<List<EmployeeLeave>> getLeaves(@PathVariable Long employeeId) {
-        return ResponseEntity.ok(leaveService.getLeavesByEmployee(employeeId));
+        return ResponseEntity.ok(service.getLeavesByEmployee(employeeId));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeLeave> getLeaveById(@PathVariable Long id) {
-        EmployeeLeave leave = leaveService.getLeaveById(id)
-                .orElse(null);
-
-        if (leave == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(leave);
+        return service.getLeaveById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
