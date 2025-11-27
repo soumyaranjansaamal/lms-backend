@@ -7,11 +7,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-// NOTE: changed base path to /api/attendance to avoid any accidental static-resource collisions
 @RequestMapping("/api/attendance")
 public class EmployeeAttendanceController {
 
@@ -21,42 +21,54 @@ public class EmployeeAttendanceController {
         this.service = service;
     }
 
+    // Create (or update if same employee+date exists — service handles that)
     @PostMapping
-    public ResponseEntity<AttendanceResponseDTO> create(@RequestBody AttendanceCreateDTO dto) {
+    public ResponseEntity<AttendanceResponseDTO> createAttendance(@RequestBody AttendanceCreateDTO dto) {
         AttendanceResponseDTO saved = service.saveAttendance(dto);
-        return ResponseEntity.status(201).body(saved);
+        return ResponseEntity.created(URI.create("/api/attendance/" + saved.getId())).body(saved);
     }
 
-    @GetMapping("/by-employee/{employeeId}")
-    public ResponseEntity<List<AttendanceResponseDTO>> listByEmployee(@PathVariable Long employeeId) {
-        return ResponseEntity.ok(service.getAttendanceByEmployee(employeeId));
-    }
-
+    // Get by id
     @GetMapping("/{id}")
     public ResponseEntity<AttendanceResponseDTO> getById(@PathVariable Long id) {
         AttendanceResponseDTO dto = service.getAttendanceById(id);
         return dto == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(dto);
     }
 
+    // Get all attendance for an employee
+    @GetMapping("/by-employee/{employeeId}")
+    public ResponseEntity<List<AttendanceResponseDTO>> getByEmployee(@PathVariable Long employeeId) {
+        List<AttendanceResponseDTO> list = service.getAttendanceByEmployee(employeeId);
+        return ResponseEntity.ok(list);
+    }
+
+    // Get attendance by date (ISO format: yyyy-MM-dd)
     @GetMapping("/date/{date}")
     public ResponseEntity<List<AttendanceResponseDTO>> getByDate(
             @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return ResponseEntity.ok(service.getAttendanceByDate(date));
+        List<AttendanceResponseDTO> list = service.getAttendanceByDate(date);
+        return ResponseEntity.ok(list);
     }
 
+    // Get all records
     @GetMapping("/all")
     public ResponseEntity<List<AttendanceResponseDTO>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
 
+    // Update by id
     @PutMapping("/{id}")
-    public ResponseEntity<AttendanceResponseDTO> update(@PathVariable Long id, @RequestBody AttendanceCreateDTO dto) {
+    public ResponseEntity<AttendanceResponseDTO> updateAttendance(
+            @PathVariable Long id,
+            @RequestBody AttendanceCreateDTO dto) {
+
         AttendanceResponseDTO updated = service.updateAttendance(id, dto);
         return updated == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(updated);
     }
 
+    // Delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAttendance(@PathVariable Long id) {
         service.deleteAttendance(id);
         return ResponseEntity.noContent().build();
     }
