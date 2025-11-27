@@ -11,24 +11,30 @@ import java.util.Optional;
 @Service
 public class EmployeeExperienceServiceImpl implements EmployeeExperienceService {
 
-    private final EmployeeExperienceRepository repo;
+    private final EmployeeExperienceRepository repository;
 
-    public EmployeeExperienceServiceImpl(EmployeeExperienceRepository repo) {
-        this.repo = repo;
+    public EmployeeExperienceServiceImpl(EmployeeExperienceRepository repository) {
+        this.repository = repository;
     }
 
     @Override
     public EmployeeExperience saveExperience(EmployeeExperience experience) {
-        return repo.save(experience);
+        return repository.save(experience);
     }
 
     @Override
     public List<EmployeeExperience> getByEmployeeId(Long employeeId) {
-        return repo.findByEmployeeId(employeeId);
+        return repository.findByEmployeeId(employeeId);
     }
 
     @Override
-    public Optional<EmployeeExperience> getById(Long id) {
-        return repo.findById(id);
+    public EmployeeExperience getById(Long id) {
+        Optional<EmployeeExperience> opt = repository.findById(id);
+        return opt.orElse(null);
+    }
+
+    @Override
+    public void deleteExperience(Long id) {
+        repository.deleteById(id);
     }
 }

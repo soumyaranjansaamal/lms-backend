@@ -21,20 +21,29 @@ public class EmployeeLeaveController {
     @PostMapping
     public ResponseEntity<EmployeeLeave> createLeave(@RequestBody EmployeeLeave leave) {
         EmployeeLeave saved = service.saveLeave(leave);
-        return ResponseEntity.created(
-                URI.create("/api/employees/leaves/" + saved.getId()))
-                .body(saved);
+        return ResponseEntity.created(URI.create("/api/employees/leaves/" + saved.getId())).body(saved);
     }
 
     @GetMapping("/by-employee/{employeeId}")
     public ResponseEntity<List<EmployeeLeave>> getLeaves(@PathVariable Long employeeId) {
-        return ResponseEntity.ok(service.getLeavesByEmployee(employeeId));
+        List<EmployeeLeave> list = service.getLeavesByEmployee(employeeId);
+        return ResponseEntity.ok(list);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeLeave> getLeaveById(@PathVariable Long id) {
         return service.getLeaveById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteLeave(@PathVariable Long id) {
+        // optionally check existence first:
+        if (service.getLeaveById(id).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        service.deleteLeave(id);
+        return ResponseEntity.noContent().build();
     }
 }

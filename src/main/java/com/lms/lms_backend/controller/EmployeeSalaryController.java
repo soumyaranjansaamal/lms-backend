@@ -2,16 +2,19 @@ package com.lms.lms_backend.controller;
 
 import com.lms.lms_backend.dto.EmployeeSalaryCreateDTO;
 import com.lms.lms_backend.dto.EmployeeSalaryResponseDTO;
-import com.lms.lms_backend.entity.EmployeeSalary;
 import com.lms.lms_backend.service.EmployeeSalaryService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Validated
 @RestController
-@RequestMapping("/api/employees/salary")
+@RequestMapping("/api/employees/salaries")
 public class EmployeeSalaryController {
 
     private final EmployeeSalaryService service;
@@ -20,57 +23,46 @@ public class EmployeeSalaryController {
         this.service = service;
     }
 
+    // Create
     @PostMapping
-    public ResponseEntity<EmployeeSalaryResponseDTO> createSalary(@RequestBody EmployeeSalaryCreateDTO dto) {
-
-        EmployeeSalary salary = EmployeeSalary.builder()
-                .employeeId(dto.getEmployeeId())
-                .basic(dto.getBasic())
-                .allowances(dto.getAllowances())
-                .deductions(dto.getDeductions())
-                .totalSalary(dto.getTotalSalary())
-                .month(dto.getMonth())
-                .year(dto.getYear())
-                .build();
-
-        EmployeeSalary saved = service.saveSalary(salary);
-
-        EmployeeSalaryResponseDTO response = EmployeeSalaryResponseDTO.builder()
-                .id(saved.getId())
-                .employeeId(saved.getEmployeeId())
-                .basic(saved.getBasic())
-                .allowances(saved.getAllowances())
-                .deductions(saved.getDeductions())
-                .totalSalary(saved.getTotalSalary())
-                .month(saved.getMonth())
-                .year(saved.getYear())
-                .build();
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<EmployeeSalaryResponseDTO> createSalary(
+            @Valid @RequestBody EmployeeSalaryCreateDTO dto
+    ) {
+        EmployeeSalaryResponseDTO saved = service.saveSalary(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    @GetMapping("/by-employee/{id}")
-    public ResponseEntity<List<EmployeeSalaryResponseDTO>> getSalaryByEmployee(@PathVariable Long id) {
-
-        List<EmployeeSalaryResponseDTO> list = service.getSalaryByEmployee(id)
-                .stream()
-                .map(s -> EmployeeSalaryResponseDTO.builder()
-                        .id(s.getId())
-                        .employeeId(s.getEmployeeId())
-                        .basic(s.getBasic())
-                        .allowances(s.getAllowances())
-                        .deductions(s.getDeductions())
-                        .totalSalary(s.getTotalSalary())
-                        .month(s.getMonth())
-                        .year(s.getYear())
-                        .build()
-                ).collect(Collectors.toList());
-
+    // List by employee
+    @GetMapping("/by-employee/{employeeId}")
+    public ResponseEntity<List<EmployeeSalaryResponseDTO>> getByEmployee(
+            @PathVariable Long employeeId
+    ) {
+        List<EmployeeSalaryResponseDTO> list = service.getSalaryByEmployee(employeeId);
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/total/{id}")
-    public ResponseEntity<Double> getTotalSalary(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getTotalSalary(id));
+    // Get by id
+    @GetMapping("/{id}")
+    public ResponseEntity<EmployeeSalaryResponseDTO> getById(@PathVariable Long id) {
+        EmployeeSalaryResponseDTO dto = service.getSalaryById(id);
+        if (dto == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(dto);
+    }
+
+    // Total salary for employee
+    @GetMapping("/total/{employeeId}")
+    public ResponseEntity<BigDecimal> getTotalSalary(@PathVariable Long employeeId) {
+        BigDecimal total = service.getTotalSalary(employeeId);
+        if (total == null) total = BigDecimal.ZERO;
+        return ResponseEntity.ok(total);
+    }
+
+    // Delete
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.deleteSalary(id);
+        return ResponseEntity.noContent().build();
     }
 }

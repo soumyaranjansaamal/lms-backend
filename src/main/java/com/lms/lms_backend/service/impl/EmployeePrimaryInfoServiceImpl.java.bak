@@ -4,11 +4,13 @@ import com.lms.lms_backend.entity.EmployeeLeave;
 import com.lms.lms_backend.repository.EmployeeLeaveRepository;
 import com.lms.lms_backend.service.EmployeeLeaveService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class EmployeeLeaveServiceImpl implements EmployeeLeaveService {
 
     private final EmployeeLeaveRepository repository;

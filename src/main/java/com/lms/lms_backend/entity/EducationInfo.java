@@ -1,35 +1,38 @@
 package com.lms.lms_backend.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
 
 @Entity
 @Table(name = "employee_education")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class EducationInfo {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // link to primary employee id
-    @Column(name = "employee_id", nullable = false)
     private Long employeeId;
-
-    @Column(name = "degree")
-    private String degree; // e.g. B.Tech, M.Tech
-
-    @Column(name = "college")
+    private String degree;
     private String college;
-
-    @Column(name = "year_of_passing")
     private Integer yearOfPassing;
+    private String grade;
 
-    @Column(name = "grade")
-    private String grade; // e.g. CPI/Percentage
+    public EducationInfo() {}
 
+    // getters / setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Long getEmployeeId() { return employeeId; }
+    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+
+    public String getDegree() { return degree; }
+    public void setDegree(String degree) { this.degree = degree; }
+
+    public String getCollege() { return college; }
+    public void setCollege(String college) { this.college = college; }
+
+    public Integer getYearOfPassing() { return yearOfPassing; }
+    public void setYearOfPassing(Integer yearOfPassing) { this.yearOfPassing = yearOfPassing; }
+
+    public String getGrade() { return grade; }
+    public void setGrade(String grade) { this.grade = grade; }
 }

@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/employees/experience")
@@ -32,7 +31,14 @@ public class EmployeeExperienceController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeExperience> getById(@PathVariable Long id) {
-        Optional<EmployeeExperience> opt = service.getById(id);
-        return opt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        EmployeeExperience exp = service.getById(id);
+        if (exp == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(exp);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
+        service.deleteExperience(id);
+        return ResponseEntity.noContent().build();
     }
 }
