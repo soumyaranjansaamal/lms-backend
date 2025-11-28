@@ -1,12 +1,14 @@
 package com.lms.lms_backend.service;
 
-import com.lms.lms_backend.entity.EmployeeSecondaryInfo;
+import com.lms.lms_backend.dto.EmployeeSecondaryInfoCreateDTO;
+import com.lms.lms_backend.dto.EmployeeSecondaryInfoResponseDTO;
 
 import java.util.List;
 
 public interface EmployeeSecondaryInfoService {
-
-    EmployeeSecondaryInfo save(EmployeeSecondaryInfo info);
-
-    List<EmployeeSecondaryInfo> getByEmployeeId(Long employeeId);
+    EmployeeSecondaryInfoResponseDTO create(EmployeeSecondaryInfoCreateDTO dto);
+    List<EmployeeSecondaryInfoResponseDTO> getByEmployeeId(Long employeeId);
+    EmployeeSecondaryInfoResponseDTO getById(Long id);
+    EmployeeSecondaryInfoResponseDTO update(Long id, EmployeeSecondaryInfoCreateDTO dto);
+    void delete(Long id);
 }

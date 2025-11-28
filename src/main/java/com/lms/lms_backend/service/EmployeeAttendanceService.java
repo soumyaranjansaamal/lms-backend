@@ -7,18 +7,10 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface EmployeeAttendanceService {
-
-    AttendanceResponseDTO saveAttendance(AttendanceCreateDTO dto);
-
-    List<AttendanceResponseDTO> getAttendanceByEmployee(Long employeeId);
-
-    AttendanceResponseDTO getAttendanceById(Long id);
-
-    List<AttendanceResponseDTO> getAttendanceByDate(LocalDate date);
-
-    List<AttendanceResponseDTO> getAll();
-
-    AttendanceResponseDTO updateAttendance(Long id, AttendanceCreateDTO dto);
-
-    void deleteAttendance(Long id);
+    AttendanceResponseDTO save(AttendanceCreateDTO dto);              // used by controller POST
+    AttendanceResponseDTO getById(Long id);                          // used by controller GET /{id}
+    List<AttendanceResponseDTO> getByEmployeeId(Long employeeId);    // used by controller GET /by-employee/{employeeId}
+    List<AttendanceResponseDTO> getByDate(LocalDate date);           // used by controller GET /by-date/{date}
+    AttendanceResponseDTO update(Long id, AttendanceCreateDTO dto);  // used by controller PUT
+    void delete(Long id);                                            // used by controller DELETE
 }

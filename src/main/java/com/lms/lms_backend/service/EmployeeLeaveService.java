@@ -1,13 +1,21 @@
 package com.lms.lms_backend.service;
 
-import com.lms.lms_backend.entity.EmployeeLeave;
+import com.lms.lms_backend.dto.LeaveCreateDTO;
+import com.lms.lms_backend.dto.LeaveResponseDTO;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface EmployeeLeaveService {
-    EmployeeLeave saveLeave(EmployeeLeave leave);
-    List<EmployeeLeave> getLeavesByEmployee(Long employeeId);
-    Optional<EmployeeLeave> getLeaveById(Long id);
+
+    LeaveResponseDTO applyLeave(LeaveCreateDTO dto);
+
+    LeaveResponseDTO getLeave(Long id);
+
+    List<LeaveResponseDTO> getLeavesByEmployee(Long employeeId);
+
+    LeaveResponseDTO approveLeave(Long id);
+
+    LeaveResponseDTO rejectLeave(Long id);
+
     void deleteLeave(Long id);
 }
