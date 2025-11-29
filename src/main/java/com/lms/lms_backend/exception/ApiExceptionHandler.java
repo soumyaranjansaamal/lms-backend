@@ -10,10 +10,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Simple controller advice you already had — returns a map for validation and general exceptions.
+ * This can coexist with GlobalExceptionHandler; GlobalExceptionHandler handles REST-specific JSON shape.
+ */
 @ControllerAdvice
 public class ApiExceptionHandler {
 
-    // Handle validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, Object> body = new HashMap<>();
@@ -30,7 +33,6 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    // Handle general errors
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneralExceptions(Exception ex) {
         Map<String, Object> body = new HashMap<>();

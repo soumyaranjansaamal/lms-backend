@@ -3,62 +3,70 @@ package com.lms.lms_backend.service.impl;
 import com.lms.lms_backend.dto.AttendanceCreateDTO;
 import com.lms.lms_backend.dto.AttendanceResponseDTO;
 import com.lms.lms_backend.entity.EmployeeAttendance;
+import com.lms.lms_backend.exception.ResourceNotFoundException;
 import com.lms.lms_backend.mapper.EmployeeAttendanceMapper;
 import com.lms.lms_backend.repository.EmployeeAttendanceRepository;
 import com.lms.lms_backend.service.EmployeeAttendanceService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class EmployeeAttendanceServiceImpl implements EmployeeAttendanceService {
 
-    private final EmployeeAttendanceRepository repo;
+    private final EmployeeAttendanceRepository repository;
 
-    public EmployeeAttendanceServiceImpl(EmployeeAttendanceRepository repo) {
-        this.repo = repo;
+    public EmployeeAttendanceServiceImpl(EmployeeAttendanceRepository repository) {
+        this.repository = repository;
     }
 
     @Override
-    public AttendanceResponseDTO save(AttendanceCreateDTO dto) {
+    public AttendanceResponseDTO create(AttendanceCreateDTO dto) {
         EmployeeAttendance entity = EmployeeAttendanceMapper.toEntity(dto);
-        EmployeeAttendance saved = repo.save(entity);
+        EmployeeAttendance saved = repository.save(entity);
         return EmployeeAttendanceMapper.toDto(saved);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AttendanceResponseDTO getById(Long id) {
-        return repo.findById(id).map(EmployeeAttendanceMapper::toDto).orElse(null);
+        EmployeeAttendance e = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Attendance not found with id: " + id));
+        return EmployeeAttendanceMapper.toDto(e);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AttendanceResponseDTO> getByEmployeeId(Long employeeId) {
-        return repo.findByEmployeeId(employeeId).stream()
-                .map(EmployeeAttendanceMapper::toDto)
-                .collect(Collectors.toList());
+        List<EmployeeAttendance> list = repository.findByEmployeeId(employeeId);
+        return list.stream().map(EmployeeAttendanceMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AttendanceResponseDTO> getByDate(LocalDate date) {
-        return repo.findByDate(date).stream()
-                .map(EmployeeAttendanceMapper::toDto)
-                .collect(Collectors.toList());
+        List<EmployeeAttendance> list = repository.findByDate(date);
+        return list.stream().map(EmployeeAttendanceMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public AttendanceResponseDTO update(Long id, AttendanceCreateDTO dto) {
-        return repo.findById(id).map(existing -> {
-            // update existing entity with DTO (mapper helper)
-            EmployeeAttendance updated = EmployeeAttendanceMapper.updateEntity(existing, dto);
-            EmployeeAttendance saved = repo.save(updated);
-            return EmployeeAttendanceMapper.toDto(saved);
-        }).orElse(null);
+        EmployeeAttendance existing = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Attendance not found with id: " + id));
+        EmployeeAttendanceMapper.updateEntity(existing, dto);
+        EmployeeAttendance updated = repository.save(existing);
+        return EmployeeAttendanceMapper.toDto(updated);
     }
 
     @Override
     public void delete(Long id) {
-        repo.deleteById(id);
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Attendance not found with id: " + id);
+        }
+        repository.deleteById(id);
     }
 }

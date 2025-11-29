@@ -6,6 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface EmployeePrimaryInfoRepository extends JpaRepository<EmployeePrimaryInfo, Long> {
-    // you can add custom queries here later, e.g.
-    // Optional<EmployeePrimaryInfo> findByEmail(String email);
+    boolean existsByEmail(String email);
 }

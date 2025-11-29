@@ -1,0 +1,72 @@
+package com.lms.lms_backend.exception;
+
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@RestControllerAdvice
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    // Handle missing resource
+    @ExceptionHandler({NoSuchElementException.class, NotFoundException.class})
+    public ResponseEntity<ApiError> handleNotFound(RuntimeException ex) {
+        ApiError err = new ApiError("Not Found", ex.getMessage() == null ? "Resource not found" : ex.getMessage(), HttpStatus.NOT_FOUND.value());
+        return new ResponseEntity<>(err, HttpStatus.NOT_FOUND);
+    }
+
+    // Handle malformed JSON (invalid body)
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+                                                                  HttpHeaders headers,
+                                                                  HttpStatus status,
+                                                                  WebRequest request) {
+        String msg = "Malformed JSON request";
+        if (ex.getCause() instanceof MismatchedInputException) {
+            msg = "JSON parse error: " + ex.getCause().getMessage();
+        } else if (ex.getMessage() != null) {
+            msg = ex.getMessage();
+        }
+        ApiError err = new ApiError("Bad Request", msg, HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+    }
+
+    // Handle @Valid validation errors
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers,
+                                                                  HttpStatus status,
+                                                                  WebRequest request) {
+        List<String> details = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
+                .collect(Collectors.toList());
+        ApiError err = new ApiError("Validation Failed", "Request validation failed", HttpStatus.BAD_REQUEST.value(), details);
+        return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+    }
+
+    // Handle IllegalArg / IllegalState / Duplicate email etc.
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
+    public ResponseEntity<ApiError> handleBadRequest(RuntimeException ex) {
+        ApiError err = new ApiError("Bad Request", ex.getMessage() == null ? "Invalid request" : ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(err, HttpStatus.BAD_REQUEST);
+    }
+
+    // Fallback for everything else
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleAll(Exception ex) {
+        // log exception if you have a logger (omitted here)
+        ApiError err = new ApiError("Internal Server Error", ex.getMessage() == null ? "Unexpected error" : ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
