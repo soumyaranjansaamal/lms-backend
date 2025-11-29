@@ -1,6 +1,14 @@
-target/
+# macOS junk
 .DS_Store
-src-backup-*
+
+# backups
+*.bak
+*.removed
+
+# build
 target/
-.DS_Store
-src-backup-*
+*.class
+
+# IDE
+.idea/
+.vscode/
