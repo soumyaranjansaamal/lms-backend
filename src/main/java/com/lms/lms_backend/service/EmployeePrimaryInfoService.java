@@ -11,4 +11,7 @@ public interface EmployeePrimaryInfoService {
     List<EmployeePrimaryInfo> findAll();
     void deleteEmployee(Long id);
     Optional<EmployeePrimaryInfo> findByEmail(String email);
+
+    // new: update existing employee (returns updated entity)
+    EmployeePrimaryInfo updateEmployee(Long id, EmployeePrimaryInfo updated);
 }

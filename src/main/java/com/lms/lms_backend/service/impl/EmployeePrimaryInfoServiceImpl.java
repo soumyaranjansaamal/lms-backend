@@ -41,4 +41,23 @@ public class EmployeePrimaryInfoServiceImpl implements EmployeePrimaryInfoServic
     public Optional<EmployeePrimaryInfo> findByEmail(String email) {
         return repository.findByEmail(email);
     }
+
+    @Override
+    public EmployeePrimaryInfo updateEmployee(Long id, EmployeePrimaryInfo updated) {
+        // basic approach: fetch, copy mutable fields, save
+        Optional<EmployeePrimaryInfo> existingOpt = repository.findById(id);
+        if (existingOpt.isEmpty()) {
+            throw new IllegalArgumentException("Employee not found with id: " + id);
+        }
+        EmployeePrimaryInfo existing = existingOpt.get();
+
+        // copy fields you want to allow updating (example fields; adapt to your entity)
+        existing.setFirstName(updated.getFirstName());
+        existing.setLastName(updated.getLastName());
+        existing.setEmail(updated.getEmail());
+        existing.setPhoneNumber(updated.getPhoneNumber());
+        // add more fields as appropriate for your EmployeePrimaryInfo
+
+        return repository.save(existing);
+    }
 }

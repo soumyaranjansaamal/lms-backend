@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/employees")
 public class EmployeeController {
@@ -19,10 +21,12 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getEmployee(@PathVariable Long id) {
-        return employeePrimaryInfoService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ErrorResponse("Not Found", "Employee with id " + id + " not found")));
+        Optional<EmployeePrimaryInfo> opt = employeePrimaryInfoService.findById(id);
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Not Found", "Employee with id " + id + " not found"));
+        }
+        return ResponseEntity.ok(opt.get());
     }
 
     @PostMapping
@@ -31,5 +35,16 @@ public class EmployeeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    // Add more endpoints as needed...
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEmployee(@PathVariable Long id, @RequestBody EmployeePrimaryInfo updated) {
+        try {
+            EmployeePrimaryInfo result = employeePrimaryInfoService.updateEmployee(id, updated);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Not Found", e.getMessage()));
+        }
+    }
+
+    // add more endpoints as needed...
 }
