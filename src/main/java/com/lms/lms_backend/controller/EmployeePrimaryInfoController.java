@@ -6,8 +6,6 @@ import com.lms.lms_backend.service.EmployeePrimaryInfoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/employees/primary")
 public class EmployeePrimaryInfoController {
@@ -22,36 +20,39 @@ public class EmployeePrimaryInfoController {
     @PostMapping
     public ResponseEntity<?> createEmployee(@RequestBody EmployeePrimaryInfo employee) {
         try {
-            EmployeePrimaryInfo saved = service.saveEmployee(employee);
-            return ResponseEntity.ok(saved);
+            return ResponseEntity.ok(service.saveEmployee(employee));
         } catch (Exception ex) {
             return ResponseEntity.badRequest()
                     .body(new ErrorResponse("Validation Failed", ex.getMessage(), 400));
         }
     }
 
-    // GET BY ID
+    // GET BY ID (FIXED — No Optional.map lambda)
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        return service.getEmployeeById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(404)
-                        .body(new ErrorResponse("Not Found", "Employee not found", 404)));
+        var result = service.getEmployeeById(id);
+        if (result.isPresent()) {
+            return ResponseEntity.ok(result.get());
+        }
+        return ResponseEntity.status(404)
+                .body(new ErrorResponse("Not Found", "Employee not found", 404));
     }
 
     // GET ALL
     @GetMapping
-    public ResponseEntity<List<EmployeePrimaryInfo>> getAll() {
+    public ResponseEntity<?> getAll() {
         return ResponseEntity.ok(service.getAllEmployees());
     }
 
-    // GET BY EMAIL
+    // GET BY EMAIL (FIXED)
     @GetMapping("/email/{email}")
     public ResponseEntity<?> getByEmail(@PathVariable String email) {
-        return service.getEmployeeByEmail(email)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(404)
-                        .body(new ErrorResponse("Not Found", "Employee not found", 404)));
+        var result = service.getEmployeeByEmail(email);
+        if (result.isPresent()) {
+            return ResponseEntity.ok(result.get());
+        }
+        return ResponseEntity.status(404)
+                .body(new ErrorResponse("Not Found", "Employee not found", 404));
     }
 
     // UPDATE
@@ -61,8 +62,7 @@ public class EmployeePrimaryInfoController {
             @RequestBody EmployeePrimaryInfo updated
     ) {
         try {
-            EmployeePrimaryInfo saved = service.updateEmployee(id, updated);
-            return ResponseEntity.ok(saved);
+            return ResponseEntity.ok(service.updateEmployee(id, updated));
         } catch (Exception ex) {
             return ResponseEntity.badRequest()
                     .body(new ErrorResponse("Update Failed", ex.getMessage(), 400));
