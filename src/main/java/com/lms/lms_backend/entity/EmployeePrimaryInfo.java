@@ -1,108 +1,81 @@
 package com.lms.lms_backend.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.io.Serializable;
+import java.util.Objects;
 
-/**
- * Entity representing primary employee information.
- * Adjust column names / table name to match your DB if needed.
- */
 @Entity
 @Table(name = "employee_primary_info")
-public class EmployeePrimaryInfo {
+public class EmployeePrimaryInfo implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Using the exact property names your service expects:
-    @Column(name = "employee_name")
-    private String employeeName;
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
 
-    @Column(name = "gender")
-    private String gender;
+    @Column(name = "last_name", nullable = true)
+    private String lastName;
 
-    @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;
-
-    @Column(name = "qualification")
-    private String qualification;
-
-    @Column(name = "phone_number")
-    private String phoneNumber;
-
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    // ------ Constructors ------
+    @Column(name = "mobile")
+    private String mobile;
+
+    @Column(name = "designation")
+    private String designation;
 
     public EmployeePrimaryInfo() {}
 
-    public EmployeePrimaryInfo(String employeeName, String gender, LocalDate dateOfBirth,
-                               String qualification, String phoneNumber, String email) {
-        this.employeeName = employeeName;
-        this.gender = gender;
-        this.dateOfBirth = dateOfBirth;
-        this.qualification = qualification;
-        this.phoneNumber = phoneNumber;
+    public EmployeePrimaryInfo(String firstName, String lastName, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
     }
 
-    // ------ Getters & Setters (exact names used by service) ------
+    // Getters & Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getId() {
-        return id;
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+
+    public String getMobile() { return mobile; }
+    public void setMobile(String mobile) { this.mobile = mobile; }
+
+    public String getDesignation() { return designation; }
+    public void setDesignation(String designation) { this.designation = designation; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EmployeePrimaryInfo)) return false;
+        EmployeePrimaryInfo that = (EmployeePrimaryInfo) o;
+        return Objects.equals(id, that.id);
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
-    public String getEmployeeName() {
-        return employeeName;
-    }
-
-    public void setEmployeeName(String employeeName) {
-        this.employeeName = employeeName;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(LocalDate dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
-
-    public String getQualification() {
-        return qualification;
-    }
-
-    public void setQualification(String qualification) {
-        this.qualification = qualification;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    @Override
+    public String toString() {
+        return "EmployeePrimaryInfo{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                '}';
     }
 }
