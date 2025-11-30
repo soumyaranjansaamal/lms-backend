@@ -2,11 +2,11 @@ package com.lms.lms_backend.repository;
 
 import com.lms.lms_backend.entity.EmployeeSecondaryInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
-import java.util.List;
-
-@Repository
 public interface EmployeeSecondaryInfoRepository extends JpaRepository<EmployeeSecondaryInfo, Long> {
-    List<EmployeeSecondaryInfo> findByEmployeeId(Long employeeId);
+
+    Optional<EmployeeSecondaryInfo> findByEmployeeId(Long employeeId);
+
+    boolean existsByEmployeeId(Long employeeId);
 }
