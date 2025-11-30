@@ -18,4 +18,17 @@ public interface EmployeePrimaryInfoService {
     void deleteEmployee(Long id);
 
     List<EmployeePrimaryInfo> getAllEmployees();
+
+    // Added aliases used by controllers (keeps backward compatibility)
+    default Optional<EmployeePrimaryInfo> findById(Long id) {
+        return getEmployeeById(id);
+    }
+
+    default Optional<EmployeePrimaryInfo> findByEmail(String email) {
+        return getEmployeeByEmail(email);
+    }
+
+    default List<EmployeePrimaryInfo> findAll() {
+        return getAllEmployees();
+    }
 }

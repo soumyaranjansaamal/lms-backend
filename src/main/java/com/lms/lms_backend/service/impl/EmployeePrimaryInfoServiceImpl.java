@@ -4,6 +4,7 @@ import com.lms.lms_backend.entity.EmployeePrimaryInfo;
 import com.lms.lms_backend.exception.ResourceNotFoundException;
 import com.lms.lms_backend.repository.EmployeePrimaryInfoRepository;
 import com.lms.lms_backend.service.EmployeePrimaryInfoService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,12 +21,9 @@ public class EmployeePrimaryInfoServiceImpl implements EmployeePrimaryInfoServic
 
     @Override
     public EmployeePrimaryInfo saveEmployee(EmployeePrimaryInfo employee) {
-
-        // Optional: check email duplicate
-        if (employeePrimaryInfoRepository.existsByEmail(employee.getEmail())) {
+        if (employee.getEmail() != null && employeePrimaryInfoRepository.existsByEmail(employee.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
-
         return employeePrimaryInfoRepository.save(employee);
     }
 
@@ -41,22 +39,13 @@ public class EmployeePrimaryInfoServiceImpl implements EmployeePrimaryInfoServic
 
     @Override
     public EmployeePrimaryInfo updateEmployee(Long id, EmployeePrimaryInfo updated) {
-
         EmployeePrimaryInfo existing = employeePrimaryInfoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
 
-        // Update only fields that exist in your entity
-        existing.setFirstName(updated.getFirstName());
-        existing.setLastName(updated.getLastName());
-        existing.setEmail(updated.getEmail());
-        existing.setPhone(updated.getPhone());
-        existing.setDob(updated.getDob());
-        existing.setGender(updated.getGender());
-        existing.setBloodGroup(updated.getBloodGroup());
-        existing.setMaritalStatus(updated.getMaritalStatus());
-        existing.setNationality(updated.getNationality());
-        existing.setAddress(updated.getAddress());
+        // copy matching properties from updated -> existing (excluding id)
+        BeanUtils.copyProperties(updated, existing, "id");
 
+        // If you want to keep some fields untouched, add them to the excluded list above.
         return employeePrimaryInfoRepository.save(existing);
     }
 
@@ -72,4 +61,6 @@ public class EmployeePrimaryInfoServiceImpl implements EmployeePrimaryInfoServic
     public List<EmployeePrimaryInfo> getAllEmployees() {
         return employeePrimaryInfoRepository.findAll();
     }
+
+    // Implement the alias default methods from interface if needed (not required here)
 }
