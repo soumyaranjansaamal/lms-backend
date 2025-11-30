@@ -36,12 +36,30 @@ public class EmployeeSecondaryInfo {
     @Column(name = "address", length = 1000)
     private String address;
 
+    // Additional fields referenced by mappers/services
+    @Column(name = "emergency_contact")
+    private String emergencyContact;
+
+    @Column(name = "alternate_contact")
+    private String alternateContact;
+
+    @Column(name = "blood_group")
+    private String bloodGroup;
+
+    @Column(name = "nationality")
+    private String nationality;
+
+    @Column(name = "notes", length = 2000)
+    private String notes;
+
     public EmployeeSecondaryInfo() {}
 
-    // simple convenience constructor (optional)
+    // convenience constructor (optional)
     public EmployeeSecondaryInfo(Long employeeId, String fatherName, String motherName,
                                  String spouseName, String maritalStatus, String religion,
-                                 LocalDate dob, String address) {
+                                 LocalDate dob, String address, String emergencyContact,
+                                 String alternateContact, String bloodGroup, String nationality,
+                                 String notes) {
         this.employeeId = employeeId;
         this.fatherName = fatherName;
         this.motherName = motherName;
@@ -50,6 +68,11 @@ public class EmployeeSecondaryInfo {
         this.religion = religion;
         this.dob = dob;
         this.address = address;
+        this.emergencyContact = emergencyContact;
+        this.alternateContact = alternateContact;
+        this.bloodGroup = bloodGroup;
+        this.nationality = nationality;
+        this.notes = notes;
     }
 
     // --- getters & setters ---
@@ -79,4 +102,19 @@ public class EmployeeSecondaryInfo {
 
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
+
+    public String getEmergencyContact() { return emergencyContact; }
+    public void setEmergencyContact(String emergencyContact) { this.emergencyContact = emergencyContact; }
+
+    public String getAlternateContact() { return alternateContact; }
+    public void setAlternateContact(String alternateContact) { this.alternateContact = alternateContact; }
+
+    public String getBloodGroup() { return bloodGroup; }
+    public void setBloodGroup(String bloodGroup) { this.bloodGroup = bloodGroup; }
+
+    public String getNationality() { return nationality; }
+    public void setNationality(String nationality) { this.nationality = nationality; }
+
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
 }
