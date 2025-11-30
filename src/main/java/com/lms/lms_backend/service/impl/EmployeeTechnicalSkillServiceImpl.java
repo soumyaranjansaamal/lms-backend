@@ -1,59 +1,63 @@
 package com.lms.lms_backend.service.impl;
 
 import com.lms.lms_backend.dto.EmployeeTechnicalSkillDTO;
-import com.lms.lms_backend.entity.EmployeePrimaryInfo;
 import com.lms.lms_backend.entity.EmployeeTechnicalSkill;
-import com.lms.lms_backend.exception.NotFoundException;
-import com.lms.lms_backend.repository.EmployeePrimaryInfoRepository;
 import com.lms.lms_backend.repository.EmployeeTechnicalSkillRepository;
 import com.lms.lms_backend.service.EmployeeTechnicalSkillService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class EmployeeTechnicalSkillServiceImpl implements EmployeeTechnicalSkillService {
 
-    private final EmployeeTechnicalSkillRepository repo;
-    private final EmployeePrimaryInfoRepository employeeRepo;
+    private final EmployeeTechnicalSkillRepository repository;
 
-    private EmployeeTechnicalSkillDTO toDto(EmployeeTechnicalSkill e) {
-        return EmployeeTechnicalSkillDTO.builder()
-                .id(e.getId())
-                .employeeId(e.getEmployee() != null ? e.getEmployee().getId() : null)
-                .skillName(e.getSkillName())
-                .proficiency(e.getProficiency())
-                .yearsExperience(e.getYearsExperience())
-                .build();
+    public EmployeeTechnicalSkillServiceImpl(EmployeeTechnicalSkillRepository repository) {
+        this.repository = repository;
     }
 
     @Override
-    public EmployeeTechnicalSkillDTO addSkill(EmployeeTechnicalSkillDTO dto) {
-        EmployeePrimaryInfo emp = employeeRepo.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new NotFoundException("Employee not found: " + dto.getEmployeeId()));
-
-        EmployeeTechnicalSkill ent = EmployeeTechnicalSkill.builder()
-                .employee(emp)
-                .skillName(dto.getSkillName())
-                .proficiency(dto.getProficiency())
-                .yearsExperience(dto.getYearsExperience())
-                .build();
-
-        ent = repo.save(ent);
-        return toDto(ent);
+    public EmployeeTechnicalSkill create(EmployeeTechnicalSkillDTO dto) {
+        EmployeeTechnicalSkill ent = new EmployeeTechnicalSkill();
+        ent.setEmployeeId(dto.getEmployeeId());
+        ent.setSkillName(dto.getSkillName());
+        ent.setProficiency(dto.getProficiency());
+        ent.setYearsExperience(dto.getYearsExperience());
+        return repository.save(ent);
     }
 
     @Override
-    public List<EmployeeTechnicalSkillDTO> getSkillsForEmployee(Long employeeId) {
-        return repo.findByEmployeeId(employeeId).stream().map(this::toDto).collect(Collectors.toList());
+    public Optional<EmployeeTechnicalSkill> findById(Long id) {
+        return repository.findById(id);
     }
 
     @Override
-    public void deleteSkill(Long id) {
-        if (!repo.existsById(id)) throw new NotFoundException("Skill not found: " + id);
-        repo.deleteById(id);
+    public List<EmployeeTechnicalSkill> findAllByEmployeeId(Long employeeId) {
+        return repository.findAllByEmployeeId(employeeId);
+    }
+
+    @Override
+    public EmployeeTechnicalSkill update(Long id, EmployeeTechnicalSkillDTO dto) {
+        EmployeeTechnicalSkill updated = repository.findById(id).orElseThrow(() ->
+                new IllegalArgumentException("Technical skill not found with id: " + id));
+        // update fields if provided
+        if (dto.getSkillName() != null) updated.setSkillName(dto.getSkillName());
+        if (dto.getProficiency() != null) updated.setProficiency(dto.getProficiency());
+        if (dto.getYearsExperience() != null) updated.setYearsExperience(dto.getYearsExperience());
+        if (dto.getEmployeeId() != null) updated.setEmployeeId(dto.getEmployeeId());
+        return repository.save(updated);
+    }
+
+    @Override
+    public void delete(Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+        } else {
+            throw new IllegalArgumentException("Technical skill not found with id: " + id);
+        }
     }
 }
