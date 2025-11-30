@@ -1,14 +1,17 @@
 package com.lms.lms_backend.controller;
 
 import com.lms.lms_backend.entity.EmployeePrimaryInfo;
+import com.lms.lms_backend.exception.ErrorResponse;
 import com.lms.lms_backend.service.EmployeePrimaryInfoService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/employees/primary")
+@RequestMapping("/api/primary-info")
 public class EmployeePrimaryInfoController {
 
     private final EmployeePrimaryInfoService service;
@@ -17,54 +20,45 @@ public class EmployeePrimaryInfoController {
         this.service = service;
     }
 
-    /**
-     * Create/save employee.
-     * The project previously used saveEmployee(...) in the service layer,
-     * so we delegate to that method so the controller matches existing service impl.
-     */
     @PostMapping
-    public ResponseEntity<EmployeePrimaryInfo> create(@RequestBody EmployeePrimaryInfo employee) {
+    public ResponseEntity<?> create(@RequestBody EmployeePrimaryInfo employee) {
         EmployeePrimaryInfo saved = service.saveEmployee(employee);
-        return ResponseEntity.status(201).body(saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    /**
-     * Get by id.
-     * Delegates to existing getEmployeeById(...) which your codebase used earlier.
-     */
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeePrimaryInfo> getById(@PathVariable Long id) {
-        EmployeePrimaryInfo emp = service.getEmployeeById(id);
-        return emp == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(emp);
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        Optional<EmployeePrimaryInfo> opt = service.findById(id);
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Not Found", "Employee with id " + id + " not found"));
+        }
+        return ResponseEntity.ok(opt.get());
     }
 
-    /**
-     * Get all employees.
-     * Delegates to existing getAllEmployees() method (which returns List<EmployeePrimaryInfo>).
-     */
     @GetMapping
     public ResponseEntity<List<EmployeePrimaryInfo>> getAll() {
-        List<EmployeePrimaryInfo> list = service.getAllEmployees();
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(service.findAll());
     }
 
-    /**
-     * Update employee by id.
-     * Delegates to updateEmployee(id, updated) used by the service impl before.
-     */
-    @PutMapping("/{id}")
-    public ResponseEntity<EmployeePrimaryInfo> update(@PathVariable Long id,
-                                                      @RequestBody EmployeePrimaryInfo updated) {
-        EmployeePrimaryInfo saved = service.updateEmployee(id, updated);
-        return saved == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(saved);
-    }
-
-    /**
-     * Delete employee.
-     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        Optional<EmployeePrimaryInfo> opt = service.findById(id);
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Not Found", "Employee with id " + id + " not found"));
+        }
         service.deleteEmployee(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/by-email")
+    public ResponseEntity<?> getByEmail(@RequestParam String email) {
+        Optional<EmployeePrimaryInfo> opt = service.findByEmail(email);
+        if (opt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Not Found", "Employee with email " + email + " not found"));
+        }
+        return ResponseEntity.ok(opt.get());
     }
 }
