@@ -6,12 +6,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EmployeePrimaryInfoService {
-    EmployeePrimaryInfo saveEmployee(EmployeePrimaryInfo employee);
-    Optional<EmployeePrimaryInfo> findById(Long id);
-    List<EmployeePrimaryInfo> findAll();
-    void deleteEmployee(Long id);
-    Optional<EmployeePrimaryInfo> findByEmail(String email);
 
-    // new: update existing employee (returns updated entity)
+    EmployeePrimaryInfo saveEmployee(EmployeePrimaryInfo employee);
+
+    Optional<EmployeePrimaryInfo> getEmployeeById(Long id);
+
+    Optional<EmployeePrimaryInfo> getEmployeeByEmail(String email);
+
     EmployeePrimaryInfo updateEmployee(Long id, EmployeePrimaryInfo updated);
+
+    void deleteEmployee(Long id);
+
+    List<EmployeePrimaryInfo> getAllEmployees();
 }
