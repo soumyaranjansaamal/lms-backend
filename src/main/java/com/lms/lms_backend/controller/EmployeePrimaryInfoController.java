@@ -3,15 +3,13 @@ package com.lms.lms_backend.controller;
 import com.lms.lms_backend.entity.EmployeePrimaryInfo;
 import com.lms.lms_backend.exception.ErrorResponse;
 import com.lms.lms_backend.service.EmployeePrimaryInfoService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/primary-info")
+@RequestMapping("/api/employees/primary")
 public class EmployeePrimaryInfoController {
 
     private final EmployeePrimaryInfoService service;
@@ -20,45 +18,66 @@ public class EmployeePrimaryInfoController {
         this.service = service;
     }
 
+    // CREATE
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody EmployeePrimaryInfo employee) {
-        EmployeePrimaryInfo saved = service.saveEmployee(employee);
-        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    public ResponseEntity<?> createEmployee(@RequestBody EmployeePrimaryInfo employee) {
+        try {
+            EmployeePrimaryInfo saved = service.saveEmployee(employee);
+            return ResponseEntity.ok(saved);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse("Validation Failed", ex.getMessage(), 400));
+        }
     }
 
+    // GET BY ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
-        Optional<EmployeePrimaryInfo> opt = service.findById(id);
-        if (opt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("Not Found", "Employee with id " + id + " not found"));
-        }
-        return ResponseEntity.ok(opt.get());
+        return service.getEmployeeById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(404)
+                        .body(new ErrorResponse("Not Found", "Employee not found", 404)));
     }
 
+    // GET ALL
     @GetMapping
     public ResponseEntity<List<EmployeePrimaryInfo>> getAll() {
-        return ResponseEntity.ok(service.findAll());
+        return ResponseEntity.ok(service.getAllEmployees());
     }
 
+    // GET BY EMAIL
+    @GetMapping("/email/{email}")
+    public ResponseEntity<?> getByEmail(@PathVariable String email) {
+        return service.getEmployeeByEmail(email)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(404)
+                        .body(new ErrorResponse("Not Found", "Employee not found", 404)));
+    }
+
+    // UPDATE
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEmployee(
+            @PathVariable Long id,
+            @RequestBody EmployeePrimaryInfo updated
+    ) {
+        try {
+            EmployeePrimaryInfo saved = service.updateEmployee(id, updated);
+            return ResponseEntity.ok(saved);
+        } catch (Exception ex) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse("Update Failed", ex.getMessage(), 400));
+        }
+    }
+
+    // DELETE
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        Optional<EmployeePrimaryInfo> opt = service.findById(id);
-        if (opt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("Not Found", "Employee with id " + id + " not found"));
+    public ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
+        try {
+            service.deleteEmployee(id);
+            return ResponseEntity.ok("Employee deleted successfully");
+        } catch (Exception ex) {
+            return ResponseEntity.status(404)
+                    .body(new ErrorResponse("Delete Failed", ex.getMessage(), 404));
         }
-        service.deleteEmployee(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/by-email")
-    public ResponseEntity<?> getByEmail(@RequestParam String email) {
-        Optional<EmployeePrimaryInfo> opt = service.findByEmail(email);
-        if (opt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("Not Found", "Employee with email " + email + " not found"));
-        }
-        return ResponseEntity.ok(opt.get());
     }
 }
