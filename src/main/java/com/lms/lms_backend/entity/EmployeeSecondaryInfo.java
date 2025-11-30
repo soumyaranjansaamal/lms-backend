@@ -1,7 +1,7 @@
 package com.lms.lms_backend.entity;
 
 import jakarta.persistence.*;
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "employee_secondary_info")
@@ -11,17 +11,9 @@ public class EmployeeSecondaryInfo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Link to primary employee record
     @Column(name = "employee_id", nullable = false)
     private Long employeeId;
-
-    @Column(name = "marital_status")
-    private String maritalStatus;
-
-    @Column(name = "spouse_name")
-    private String spouseName;
-
-    @Column(name = "emergency_contact")
-    private String emergencyContact;
 
     @Column(name = "father_name")
     private String fatherName;
@@ -29,39 +21,43 @@ public class EmployeeSecondaryInfo {
     @Column(name = "mother_name")
     private String motherName;
 
-    @Column(name = "blood_group")
-    private String bloodGroup;
+    @Column(name = "spouse_name")
+    private String spouseName;
 
-    @Column(name = "nationality")
-    private String nationality;
+    @Column(name = "marital_status")
+    private String maritalStatus;
 
     @Column(name = "religion")
     private String religion;
 
-    @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
+    @Column(name = "dob")
+    private LocalDate dob;
 
-    @Column(name = "updated_at")
-    private Instant updatedAt;
+    @Column(name = "address", length = 1000)
+    private String address;
 
-    // -- constructors --
     public EmployeeSecondaryInfo() {}
 
-    // -- getters / setters --
+    // simple convenience constructor (optional)
+    public EmployeeSecondaryInfo(Long employeeId, String fatherName, String motherName,
+                                 String spouseName, String maritalStatus, String religion,
+                                 LocalDate dob, String address) {
+        this.employeeId = employeeId;
+        this.fatherName = fatherName;
+        this.motherName = motherName;
+        this.spouseName = spouseName;
+        this.maritalStatus = maritalStatus;
+        this.religion = religion;
+        this.dob = dob;
+        this.address = address;
+    }
+
+    // --- getters & setters ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public Long getEmployeeId() { return employeeId; }
     public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
-
-    public String getMaritalStatus() { return maritalStatus; }
-    public void setMaritalStatus(String maritalStatus) { this.maritalStatus = maritalStatus; }
-
-    public String getSpouseName() { return spouseName; }
-    public void setSpouseName(String spouseName) { this.spouseName = spouseName; }
-
-    public String getEmergencyContact() { return emergencyContact; }
-    public void setEmergencyContact(String emergencyContact) { this.emergencyContact = emergencyContact; }
 
     public String getFatherName() { return fatherName; }
     public void setFatherName(String fatherName) { this.fatherName = fatherName; }
@@ -69,29 +65,18 @@ public class EmployeeSecondaryInfo {
     public String getMotherName() { return motherName; }
     public void setMotherName(String motherName) { this.motherName = motherName; }
 
-    public String getBloodGroup() { return bloodGroup; }
-    public void setBloodGroup(String bloodGroup) { this.bloodGroup = bloodGroup; }
+    public String getSpouseName() { return spouseName; }
+    public void setSpouseName(String spouseName) { this.spouseName = spouseName; }
 
-    public String getNationality() { return nationality; }
-    public void setNationality(String nationality) { this.nationality = nationality; }
+    public String getMaritalStatus() { return maritalStatus; }
+    public void setMaritalStatus(String maritalStatus) { this.maritalStatus = maritalStatus; }
 
     public String getReligion() { return religion; }
     public void setReligion(String religion) { this.religion = religion; }
 
-    public Instant getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public LocalDate getDob() { return dob; }
+    public void setDob(LocalDate dob) { this.dob = dob; }
 
-    public Instant getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = Instant.now();
-        this.updatedAt = this.createdAt;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = Instant.now();
-    }
+    public String getAddress() { return address; }
+    public void setAddress(String address) { this.address = address; }
 }
